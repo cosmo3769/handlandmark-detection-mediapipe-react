@@ -1,4 +1,4 @@
-import './App.css';
+// import './App.css';
 // import Webcam from 'react-webcam';
 // import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
 // import { Camera } from '@mediapipe/camera_utils';
