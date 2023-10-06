@@ -1,12 +1,7 @@
-import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
+import { FilesetResolver, HandLandmarker, DrawingUtils } from "@mediapipe/tasks-vision";
 import React, { useEffect } from "react";
-import {
-    drawConnectors,
-    drawLandmarks,
-  } from '@mediapipe/drawing_utils/drawing_utils';
 
 export default function HandLandmarkDetection() {
-
     useEffect(() => {
         let handLandmarker;
         let runningMode = "IMAGE";
@@ -24,19 +19,14 @@ export default function HandLandmarkDetection() {
               runningMode: runningMode,
               numHands: 2
             });
-            console.log(handLandmarker)
           }
         runDemo()
         
         const video = document.getElementById("webcam");
-        console.log(video)
         const canvasElement = document.getElementById("output_canvas");
-        console.log(canvasElement)
         const canvasCtx = canvasElement.getContext("2d");
-        console.log(canvasCtx)
 
         let webcamRunning= false;
-
 
         // Check if webcam access is supported.
         function hasGetUserMedia() {
@@ -81,11 +71,6 @@ export default function HandLandmarkDetection() {
         }
 
         async function predictWebcam() {
-            canvasElement.style.height = videoHeight;
-            video.style.height = videoHeight;
-            canvasElement.style.width = videoWidth;
-            video.style.width = videoWidth;
-
             // Now let's start detecting the stream.
             if (runningMode === "IMAGE") {
             runningMode = "VIDEO";
@@ -96,14 +81,26 @@ export default function HandLandmarkDetection() {
         
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            const drawingUtils = new DrawingUtils(canvasCtx);
+            canvasElement.style.height = videoHeight;
+            video.style.height = videoHeight;
+            canvasElement.style.width = videoWidth;
+            video.style.width = videoWidth;
           
             if (results.landmarks) {
                 for (const landmarks of results.landmarks) {
-                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-                    color: "#00FF00",
-                    lineWidth: 5
-                    });
-                    drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+                    drawingUtils.drawConnectors(
+                        landmarks,
+                        HandLandmarker.HAND_CONNECTIONS,
+                        {
+                          color: "#00FF00",
+                          lineWidth: 5
+                        }
+                      );
+                      drawingUtils.drawLandmarks(landmarks, {
+                        color: "#FF0000",
+                        lineWidth: 2
+                      });
                 }
             }
             canvasCtx.restore();
@@ -123,7 +120,7 @@ export default function HandLandmarkDetection() {
                     <span>ENABLE WEBCAM</span>
                 </button>
                 <div style={{position: "relative"}}>
-                    <video id="webcam" style={{width: "1280px", height: "720px", position: "abso"}} autoPlay playsInline></video>
+                    <video id="webcam" style={{width: "1280px", height: "720px", position: "absolute", left: "0px", top: "0px"}} autoPlay playsInline></video>
                     <canvas className="output_canvas" id="output_canvas" width="1280" height="720" style={{position: "absolute", left: "0px", top: "0px"}}></canvas>
                 </div>
             </div>
